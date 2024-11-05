@@ -11,7 +11,7 @@ public class Main {
 
     public static void main(String[] args) {
         if (args.length < 1) {
-            OUTPUT.println("Правильное использование: java LogAnalyzer --path <путь к лог-файлам> [--from <дата>] "
+            OUTPUT.println("Правила использования: --path <путь к лог-файлам> [--from <дата>] "
                 + "[--to <дата>] [--format <markdown|adoc>] \nДата from включена в диапазон, дата to - нет");
             return;
         }

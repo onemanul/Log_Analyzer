@@ -36,7 +36,7 @@ public class LogFileProcessor {
             if (isValidURL(path)) {
                 return readFromURL(path);
             } else {
-                return readFromFile(path);
+                return readFromLocalFile(path);
             }
         } catch (IOException e) {
             output.println("Ошибка с чтением файла (не найден или не может быть прочитан) по пути: " + path);
@@ -55,7 +55,7 @@ public class LogFileProcessor {
         }
     }
 
-    private List<LogRecord> readFromFile(String pathString) throws IOException, InvalidPathException {
+    private List<LogRecord> readFromLocalFile(String pathString) throws IOException, InvalidPathException {
         if (pathString.contains("*")) {         // путь - шаблон
             return readTemplate(pathString);
         }
