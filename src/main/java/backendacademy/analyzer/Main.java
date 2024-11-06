@@ -12,11 +12,6 @@ public class Main {
     private static final PrintStream OUTPUT = System.out;
 
     public static void main(String[] args) {
-        /*String path = "LOG/lo*.txt";
-        LogAnalyzer analyzer = new LogAnalyzer(path, Optional.empty(), Optional.empty());
-        OUTPUT.println("Проверка: " + analyzer.analyze());
-        OUTPUT.println(analyzer.report("markdown"));*/
-
         if (args.length < 1) {
             OUTPUT.println("Правила использования: --path <путь к лог-файлам> [--from <дата>] "
                 + "[--to <дата>] [--format <markdown|adoc>] \nДата from включена в диапазон, дата to - нет");

@@ -1,9 +1,8 @@
-package backendacademy.analyzer;
+package backendacademy.analyzer.fileParserClasses;
 
-import backendacademy.analyzer.fileParserClasses.LogParser;
+import backendacademy.analyzer.LogRecord;
 import org.junit.jupiter.api.Test;
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.time.LocalDate;
