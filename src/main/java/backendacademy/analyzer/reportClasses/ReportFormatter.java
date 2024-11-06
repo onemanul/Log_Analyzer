@@ -1,4 +1,4 @@
-package backendacademy.analyzer;
+package backendacademy.analyzer.reportClasses;
 
 import java.io.PrintStream;
 

@@ -1,4 +1,4 @@
-package backendacademy.analyzer;
+package backendacademy.analyzer.reportClasses;
 
 public class SectionFormat {
     private SectionFormat() {}
@@ -10,28 +10,24 @@ public class SectionFormat {
         }
         StringBuilder section = new StringBuilder();
         section.append("#### ").append(title).append("\n\n");
-        // Определяем ширину столбцов
         int[] columnWidths = new int[tableTitles[0].length];
-        for (String[] row : data) {
+        for (String[] row : data) {                             // Определение ширины столбцов
             for (int i = 0; i < row.length; i++) {
                 columnWidths[i] = Math.max(columnWidths[i], tableTitles[0][i].length());
                 columnWidths[i] = Math.max(columnWidths[i], row[i].length());
             }
         }
-        // Добавляем заголовок таблицы
-        for (int i = 0; i < tableTitles[0].length; i++) {
+        for (int i = 0; i < tableTitles[0].length; i++) {       // Заголовки таблицы
             section.append(String.format("| %-" + columnWidths[i] + "s ", tableTitles[0][i]));
         }
         section.append("|\n");
-        // Добавляем разделитель
-        for (int width : columnWidths) {
+        for (int width : columnWidths) {                        // Добавление разделителя
             section.append("|:").append("-".repeat(width)).append(":");
         }
         section.append("|\n");
-        // Добавляем данные
-        for (int i = 0; i < data.length; i++) {
-            for (int j = 0; j < data[i].length; j++) {
-                section.append(String.format("| %-" + columnWidths[j] + "s ", data[i][j]));
+        for (String[] datum : data) {                 // Данные
+            for (int j = 0; j < datum.length; j++) {
+                section.append(String.format("| %-" + columnWidths[j] + "s ", datum[j]));
             }
             section.append("|\n");
         }
@@ -44,22 +40,19 @@ public class SectionFormat {
             return "Ошибка: количество заголовков столбцов не соответствует количеству столбцов данных.\n\n";
         }
         StringBuilder section = new StringBuilder();
-        section.append("==== ").append(title).append("\n\n");
-        // "Открывание" таблицы
-        section.append("|====\n");
-        // Добавляем заголовок таблицы
-        for (int i = 0; i < tableTitles[0].length; i++) {
+        section.append("==== ").append(title).append("\n\n");   // Название таблицы
+        section.append("|====\n");                              // "Открытие" таблицы
+        for (int i = 0; i < tableTitles[0].length; i++) {       // Заголовки таблицы
             section.append("| ").append(tableTitles[0][i]).append(" ");
         }
         section.append("\n");
-        // Добавляем данные
-        for (int i = 0; i < data.length; i++) {
-            for (int j = 0; j < data[i].length; j++) {
-                section.append("\n| ").append(data[i][j]);
+        for (String[] datum : data) {                 // Данные
+            for (String s : datum) {
+                section.append("\n| ").append(s);
             }
             section.append("\n");
         }
-        section.append("|====\n\n"); // "закрытие" таблицы
+        section.append("|====\n\n");    // "закрытие" таблицы
         return section.toString();
     }
     //CHECKSTYLE:ON

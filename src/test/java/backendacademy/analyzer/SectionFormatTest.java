@@ -1,5 +1,6 @@
 package backendacademy.analyzer;
 
+import backendacademy.analyzer.reportClasses.SectionFormat;
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
