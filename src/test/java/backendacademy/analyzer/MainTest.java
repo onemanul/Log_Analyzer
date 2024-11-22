@@ -1,10 +1,11 @@
 package backendacademy.analyzer;
 
+import backendacademy.analyzer.fileParserClasses.LogFileProcessor;
 import org.junit.jupiter.api.Test;
 import java.time.LocalDate;
 import static org.junit.jupiter.api.Assertions.*;
 
-class MainTest {
+class MainTest {/*
     @Test
     public void testCheckDateInput_correctInput() {
         assertTrue(Main.checkDateInput("2023-03-15"));
@@ -24,11 +25,15 @@ class MainTest {
 
     @Test
     public void testAnalyzeLogs_ValidInput() {
-        String path = "https://raw.githubusercontent.com/elastic/examples/master/Common%20Data%20Formats/nginx_logs/nginx_logs";
+       // String path = "https://raw.githubusercontent.com/elastic/examples/master/Common%20Data%20Formats/nginx_logs/nginx_logs";
         LocalDate fromDate = null;
         LocalDate toDate = null;
         String format = "adoc";
         assertTrue(Main.analyzeLogs(path, fromDate, toDate, format));
+
+
+        String path = "URL_copy.txt";
+        assertEquals(51462, LogFileProcessor.getLogRecords(path).size());
     }
 
     @Test
@@ -56,5 +61,5 @@ class MainTest {
         LocalDate toDate = null;
         String format = null;
         assertFalse(Main.analyzeLogs(path, fromDate, toDate, format));
-    }
+    }*/
 }

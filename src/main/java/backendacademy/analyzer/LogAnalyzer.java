@@ -3,7 +3,6 @@ package backendacademy.analyzer;
 import backendacademy.analyzer.reportClasses.ReportFormatter;
 import java.io.PrintStream;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -28,20 +27,6 @@ public class LogAnalyzer {
 
     public LogAnalyzer() {}
 
-    public List<LogRecord> filterByDate(List<LogRecord> recordList, LocalDate from, LocalDate to) {
-        this.fromDate = from;
-        this.toDate = to;
-        List<LogRecord> filteredRecords = new ArrayList<>();
-        for (LogRecord logRecord : recordList) {
-            boolean isAfterFrom = (from == null || logRecord.date().isAfter(from) || logRecord.date().isEqual(from));
-            boolean isBeforeTo = (to == null || logRecord.date().isBefore(to));
-            if (isAfterFrom && isBeforeTo) {
-                filteredRecords.add(logRecord);
-            }
-        }
-        return filteredRecords;
-    }
-
     public boolean analyze(List<LogRecord> recordList) {
         if (recordList.isEmpty()) {
             output.println("Нет данных, соответствующих запросу.");
@@ -53,10 +38,12 @@ public class LogAnalyzer {
         }
     }
 
-    public String report(String format, String path) {
+    public String report(String path, LocalDate from, LocalDate to, String format) {
         if (!hasBeenAnalyzed) {
             return "Анализ данных не был проведён.";
         }
+        this.fromDate = from;
+        this.toDate = to;
         try {
             StringArrayMaker maker = new StringArrayMaker();
             String[][] generalInfo = maker.generalInfo(path);

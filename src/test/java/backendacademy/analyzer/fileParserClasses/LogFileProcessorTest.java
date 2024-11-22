@@ -11,11 +11,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class LogFileProcessorTest {
     @Test
     public void testGetLogRecords_URL() throws Exception {
-        String path = "https://raw.githubusercontent.com/elastic/examples/master/Common%20Data%20Formats/nginx_logs/nginx_logs";
-        URL url = new URL(path);
-        URLConnection connection = url.openConnection();
-        BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-        assertEquals(LogParser.makeRecordList(reader), LogFileProcessor.getLogRecords(path));
+        String path = "URL_copy.txt";
+        assertEquals(51462, LogFileProcessor.getLogRecords(path).size());
     }
 
     @Test

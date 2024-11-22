@@ -5,79 +5,72 @@ import java.io.PrintStream;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import lombok.experimental.UtilityClass;
+import backendacademy.analyzer.fileParserClasses.LogFilter;
+import com.beust.jcommander.IStringConverter;
+import com.beust.jcommander.Parameter;
+import com.beust.jcommander.JCommander;
+import com.beust.jcommander.ParameterException;
 
-@UtilityClass
 public class Main {
+    @Parameter(names = "--path", required = true, description = "<путь к лог-файлам>")
+    private static String path;
+    @Parameter(names = "--from", converter = LocalDateConverter.class, description = "<дата> (включена в диапазон)")
+    private static LocalDate from;
+    @Parameter(names = "--to", converter = LocalDateConverter.class, description = "<дата> (не включена в диапазон)")
+    private static LocalDate to;
+    @Parameter(names = "--format", description = "<markdown|adoc>")
+    private static String format = "markdown";
+
     private static final PrintStream OUTPUT = System.out;
 
     public static void main(String[] args) {
-        if (args.length < 1) {
-            OUTPUT.println("Правила использования: --path <путь к лог-файлам> [--from <дата>] "
-                + "[--to <дата>] [--format <markdown|adoc>] \nДата from включена в диапазон, дата to - нет");
+        JCommander jCommander = JCommander.newBuilder().addObject(new Main()).build();
+        try {
+            jCommander.parse(args);
+        } catch (ParameterException e) {
+            jCommander.usage();
             return;
         }
-        Optional<String> optPath = Optional.empty();
-        LocalDate fromDate = null;
-        LocalDate toDate = null;
-        String format = "markdown";
 
-        //CHECKSTYLE:OFF
-        for (int i = 0; i < args.length; ++i) {
-            switch (args[i]) {
-                case "--path":
-                    optPath = Optional.of(args[++i]);
-                    break;
-                case "--from":
-                    if (checkDateInput(args[++i])) {
-                        fromDate = LocalDate.parse(args[i]);
-                    }
-                    break;
-                case "--to":
-                    if (checkDateInput(args[++i])) {
-                        toDate = LocalDate.parse(args[i]);
-                    }
-                    break;
-                case "--format":
-                    format = args[++i];
-                    break;
-                default:
-                    OUTPUT.println("Найдены неизвестные параметры");
-            }
-        }
-        //CHECKSTYLE:ON
+       /* OUTPUT.println("Path: " + path);
+        OUTPUT.println("From: " + from);
+        OUTPUT.println("To: " + to);
+        OUTPUT.println("Format: " + format);*/
 
-        if (optPath.isEmpty()) {
-            OUTPUT.println("Среди параметров отсутствует путь, программа будет завершена");
+        Optional<List<LogRecord>> optRecordList = readLogs();
+        if (optRecordList.isEmpty()) {
+            OUTPUT.println("Ошибка в чтении файла.");
         } else {
-            if (!analyzeLogs(optPath.get(), fromDate, toDate, format)) {
-                OUTPUT.println("Анализ невозможен, программа будет завершена");
-            }
+            OUTPUT.println(analyzeLogs(optRecordList.get()));
         }
     }
 
-    public static boolean analyzeLogs(String path, LocalDate fromDate, LocalDate toDate, String format) {
-        List<LogRecord> recordList;
+    public static Optional<List<LogRecord>> readLogs() {
         try {
-            recordList = LogFileProcessor.getLogRecords(path);
+            return Optional.of(LogFileProcessor.getLogRecords(path));
         } catch (Exception e) {
-            return false;
+            return Optional.empty();
         }
+    }
+
+    public static String analyzeLogs(List<LogRecord> recordList) {
         LogAnalyzer analyzer = new LogAnalyzer();
-        if (analyzer.analyze(analyzer.filterByDate(recordList, fromDate, toDate))) {
-            OUTPUT.println(analyzer.report(format, path));
-            return true;
+        if (analyzer.analyze(LogFilter.filter(recordList, from, to))) {
+            return analyzer.report(path, from, to, format);
         } else {
-            return false;
+            return "Нет данных для анализа.";
         }
     }
 
-    public static boolean checkDateInput(String input) {
-        try {
-            LocalDate.parse(input);
-            return true;
-        } catch (Exception e) {
-            return false;
+    public static class LocalDateConverter implements IStringConverter<LocalDate> {
+        @Override
+        public LocalDate convert(String value) {
+            try {
+                return LocalDate.parse(value);
+            } catch (Exception e) {
+                OUTPUT.println("Недопустимый формат даты. Требуемый формат yyyy-MM-dd");
+                return null;
+            }
         }
     }
 }

@@ -79,9 +79,9 @@ class LogAnalyzerTest {
 
     @Test
     public void testReport_withoutAnalysis() {
-        assertEquals("Анализ данных не был проведён.", analyzer.report("format", "path"));
+        assertEquals("Анализ данных не был проведён.", analyzer.report("path", null, null, "format"));
         analyzer.analyze(new ArrayList<>());
-        assertEquals("Анализ данных не был проведён.", analyzer.report("format", "path"));
+        assertEquals("Анализ данных не был проведён.", analyzer.report("path", null, null, "format"));
     }
 
     @Test
@@ -90,9 +90,9 @@ class LogAnalyzerTest {
         LogAnalyzer.StringArrayMaker maker = analyzer. new StringArrayMaker();
         ReportFormatter formatter = new ReportFormatter(maker.generalInfo("path"),
             maker.requestedResources(), maker.responseCodes(), maker.addressesRequestSources());
-        assertEquals(formatter.formReport("format"), analyzer.report("format", "path"));
-        assertEquals(formatter.formReport("markdown"), analyzer.report("markdown", "path"));
-        assertEquals(formatter.formReport("adoc"), analyzer.report("adoc", "path"));
+        assertEquals(formatter.formReport("format"), analyzer.report("path", null, null, "format"));
+        assertEquals(formatter.formReport("markdown"), analyzer.report("path", null, null, "markdown"));
+        assertEquals(formatter.formReport("adoc"), analyzer.report("path", null, null, "adoc"));
     }
 
     @Test
