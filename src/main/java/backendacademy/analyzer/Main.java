@@ -5,7 +5,6 @@ import java.io.PrintStream;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import backendacademy.analyzer.fileParserClasses.LogFilter;
 import com.beust.jcommander.IStringConverter;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.JCommander;

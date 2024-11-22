@@ -1,6 +1,5 @@
-package backendacademy.analyzer.fileParserClasses;
+package backendacademy.analyzer;
 
-import backendacademy.analyzer.LogRecord;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;

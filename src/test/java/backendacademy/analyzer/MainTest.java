@@ -1,65 +1,85 @@
 package backendacademy.analyzer;
 
-import backendacademy.analyzer.fileParserClasses.LogFileProcessor;
+import backendacademy.analyzer.fileParserClasses.LogParser;
 import org.junit.jupiter.api.Test;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
-class MainTest {/*
+class MainTest {
     @Test
-    public void testCheckDateInput_correctInput() {
-        assertTrue(Main.checkDateInput("2023-03-15"));
-        assertTrue(Main.checkDateInput("2100-01-01"));
-        assertTrue(Main.checkDateInput("1900-01-01"));
+    public void testLocalDateConverter_correctInput() {
+        Main.LocalDateConverter converter = new Main.LocalDateConverter();
+        assertEquals(LocalDate.of(2023,03,15), converter.convert("2023-03-15"));
+        assertEquals(LocalDate.of(2100,01,01), converter.convert("2100-01-01"));
+        assertEquals(LocalDate.of(1900,01,01), converter.convert("1900-01-01"));
     }
 
     @Test
-    public void testCheckDateInput_incorrectInput() {
-        assertFalse(Main.checkDateInput("2023-02-30"));
-        assertFalse(Main.checkDateInput("2023-13-10"));
-        assertFalse(Main.checkDateInput(" 2023-03-15 "));
-        assertFalse(Main.checkDateInput("15/03/2023"));
-        assertFalse(Main.checkDateInput(""));
-        assertFalse(Main.checkDateInput("Hello World"));
+    public void testLocalDateConverter_incorrectInput() {
+        Main.LocalDateConverter converter = new Main.LocalDateConverter();
+        assertNull(converter.convert("2023-02-30"));
+        assertNull(converter.convert("2023-13-10"));
+        assertNull(converter.convert(" 2023-03-15 "));
+        assertNull(converter.convert("15/03/2023"));
+        assertNull(converter.convert(""));
+        assertNull(converter.convert("Hello World"));
     }
 
     @Test
-    public void testAnalyzeLogs_ValidInput() {
-       // String path = "https://raw.githubusercontent.com/elastic/examples/master/Common%20Data%20Formats/nginx_logs/nginx_logs";
-        LocalDate fromDate = null;
-        LocalDate toDate = null;
-        String format = "adoc";
-        assertTrue(Main.analyzeLogs(path, fromDate, toDate, format));
-
-
-        String path = "URL_copy.txt";
-        assertEquals(51462, LogFileProcessor.getLogRecords(path).size());
+    public void testReadLogs_ValidPath() {
+        String[] args = {
+            "--path", "URL_copy.txt"
+        };
+        Main.main(args);
+        assertTrue(Main.readLogs().isPresent());
+        assertEquals(51462, Main.readLogs().get().size());
     }
 
     @Test
-    public void testAnalyzeLogs_InvalidPath() {
-        String path = "invalid/path/to/logfile.log";
-        LocalDate fromDate = null;
-        LocalDate toDate = null;
-        String format = "adoc";
-        assertFalse(Main.analyzeLogs(path, fromDate, toDate, format));
+    public void testReadLogs_InvalidPath() {
+        String[] args = {
+            "--path", "invalid/path/to/logfile.log",
+            "--format", "adoc"
+        };
+        Main.main(args);
+        assertTrue(Main.readLogs().isEmpty());
+    }
+
+    @Test
+    public void testAnalyzeLogs_ValidList() throws IOException {
+        String[] args = {
+            "--path", "log_1.txt",
+            "--from", "2015-05-17",
+            "--format", "markdown"
+        };
+        Main.main(args);
+        String logRecord = "185.40.8.59 - - [04/Jun/2015:03:06:02 +0000] \"GET /downloads/product_2 HTTP/1.1\" 304 0 \"-\" \"Debian APT-HTTP/1.3 (0.8.16~exp12ubuntu10.21)\"\n";
+        List<LogRecord> record = LogParser.makeRecordList(new BufferedReader(new StringReader(logRecord)));
+        LogAnalyzer analyzer = new LogAnalyzer();
+        analyzer.analyze(record);
+        assertEquals(analyzer.report("log_1.txt", LocalDate.of(2015,05,17), null, "markdown"),
+                    Main.analyzeLogs(Main.readLogs().get()));
     }
 
     @Test
     public void testAnalyzeLogs_NoRecordsInDateRange() {
-        String path = "https://raw.githubusercontent.com/elastic/examples/master/Common%20Data%20Formats/nginx_logs/nginx_logs";
-        LocalDate fromDate = LocalDate.of(2023, 1, 1);
-        LocalDate toDate = LocalDate.of(2022, 1, 1);
-        String format = "adoc";
-        assertFalse(Main.analyzeLogs(path, fromDate, toDate, format));
+        String[] args = {
+            "--path", "URL_copy.txt",
+            "--from", "2023-01-01",
+            "--to", "2022-01-01",
+            "--format", "adoc"
+        };
+        Main.main(args);
+        assertEquals("Нет данных для анализа.", Main.analyzeLogs(Main.readLogs().get()));
     }
 
     @Test
-    public void testAnalyzeLogs_NullValues() {
-        String path = null;
-        LocalDate fromDate = null;
-        LocalDate toDate = null;
-        String format = null;
-        assertFalse(Main.analyzeLogs(path, fromDate, toDate, format));
-    }*/
+    public void testAnalyzeLogs_EmptyValue() {
+        assertEquals("Нет данных для анализа.", Main.analyzeLogs(new ArrayList<>()));
+    }
 }
