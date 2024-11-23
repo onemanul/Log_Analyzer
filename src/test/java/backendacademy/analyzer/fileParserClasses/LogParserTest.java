@@ -1,16 +1,18 @@
 package backendacademy.analyzer.fileParserClasses;
 
+import backendacademy.analyzer.LogAnalyze;
 import backendacademy.analyzer.LogRecord;
 import org.junit.jupiter.api.Test;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.time.LocalDate;
-import java.util.List;
 import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 class LogParserTest {
+    LogAnalyze analyze = new LogAnalyze(null, null);
+
     @Test
     public void testParseLogLine_CorrectLogLine() {
         String logLine = "50.57.209.100 - - [03/Jun/2015:03:06:42 +0000] \"GET /downloads/product_2 HTTP/1.1\" " +
@@ -55,18 +57,18 @@ class LogParserTest {
         String logData = "79.136.114.202 - - [03/Jun/2015:04:06:40 +0000] \"GET /downloads/product_1 HTTP/1.1\" 404 332 \"-\" \"Debian APT-HTTP/1.3 (1.0.1ubuntu2)\"\n" +
             "217.168.17.5 - - [03/Jun/2015:04:06:54 +0000] \"GET /downloads/product_2 HTTP/1.1\" 200 490 \"-\" \"Debian APT-HTTP/1.3 (0.8.10.3)\"";
         BufferedReader reader = new BufferedReader(new StringReader(logData));
-        List<LogRecord> records = LogParser.makeRecordList(reader);
-        assertEquals(2, records.size());
-        assertEquals("79.136.114.202", records.get(0).remoteAddr());
-        assertEquals("217.168.17.5", records.get(1).remoteAddr());
+        LogParser.addRecordsToAnalyze(reader, analyze);
+        assertEquals(2, analyze.getRequestsCount());
+        assertEquals(1, analyze.getRemoteAddrCount().get("79.136.114.202"));
+        assertEquals(1, analyze.getRemoteAddrCount().get("217.168.17.5"));
     }
 
     @Test
     public void testMakeRecordList_IncorrectInput() throws IOException {
         String logData = "Invalid log line format\n" + "Another invalid log line";
         BufferedReader reader = new BufferedReader(new StringReader(logData));
-        List<LogRecord> records = LogParser.makeRecordList(reader);
-        assertTrue(records.isEmpty());
+        LogParser.addRecordsToAnalyze(reader, analyze);
+        assertEquals(0, analyze.getRequestsCount());
     }
 
     @Test
@@ -75,16 +77,16 @@ class LogParserTest {
             "Invalid log line format\n" +
             "217.168.17.5 - user [01/Jan/2023:10:05:00 +0000] \"POST /submit HTTP/1.1\" 404 0 \"http://referer.com\" \"User -Agent\"";
         BufferedReader reader = new BufferedReader(new StringReader(logData));
-        List<LogRecord> records = LogParser.makeRecordList(reader);
-        assertEquals(2, records.size());
-        assertEquals("79.136.114.202", records.get(0).remoteAddr());
-        assertEquals("217.168.17.5", records.get(1).remoteAddr());
+        LogParser.addRecordsToAnalyze(reader, analyze);
+        assertEquals(2, analyze.getRequestsCount());
+        assertEquals(1, analyze.getRemoteAddrCount().get("79.136.114.202"));
+        assertEquals(1, analyze.getRemoteAddrCount().get("217.168.17.5"));
     }
 
     @Test
     public void testMakeListOfRecords_Exception() throws IOException {
         BufferedReader reader = new BufferedReader(new StringReader(new String()));
         reader.close();
-        assertThrows(IOException.class, () -> LogParser.makeRecordList(reader));
+        assertThrows(IOException.class, () -> LogParser.addRecordsToAnalyze(reader, analyze));
     }
 }

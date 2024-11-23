@@ -1,12 +1,11 @@
 package backendacademy.analyzer.fileParserClasses;
 
+import backendacademy.analyzer.LogAnalyze;
 import backendacademy.analyzer.LogRecord;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.regex.Matcher;
@@ -15,9 +14,9 @@ import java.util.regex.Pattern;
 public class LogParser {
     private LogParser() {}
 
-    public static List<LogRecord> makeRecordList(BufferedReader reader) throws IOException {
-        LogParser maker = new LogParser();
-        return maker.makeListOfRecords(reader);
+    public static void addRecordsToAnalyze(BufferedReader reader, LogAnalyze analyze) throws IOException {
+        LogParser adder = new LogParser();
+        adder.addRecords(reader, analyze);
     }
 
     public static Optional<LogRecord> parseLogLine(String recordLine) {
@@ -25,15 +24,13 @@ public class LogParser {
         return parser.transformLogLine(recordLine);
     }
 
-    private List<LogRecord> makeListOfRecords(BufferedReader reader) throws IOException {
-        List<LogRecord> recordList = new ArrayList<>();
+    private void addRecords(BufferedReader reader, LogAnalyze analyze) throws IOException {
         String recordLine;
         Optional<LogRecord> optLogRecord;
         while ((recordLine = reader.readLine()) != null) {
             optLogRecord = transformLogLine(recordLine);
-            optLogRecord.ifPresent(recordList::add);
+            optLogRecord.ifPresent(analyze::addRecord);
         }
-        return recordList;
     }
 
     private Optional<LogRecord> transformLogLine(String recordLine) {
