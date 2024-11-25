@@ -60,10 +60,12 @@ public class LogFileProcessor {
     private LogAnalyze readFromLocalFile(String pathString, LocalDate from, LocalDate to) throws IOException {
         LogAnalyze analyze = new LogAnalyze(from, to);
         AtomicBoolean pathExists = new AtomicBoolean(false);
-        PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:" + pathString);
-        Files.walk(Paths.get(""))
+        String root = getRootDirectory(pathString);
+        String pattern = getPattern(pathString, root);
+        PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:" + pattern);
+        Files.walk(Paths.get(root))
             .filter(Files::isRegularFile)
-            .filter(matcher::matches)
+            .filter(path -> matcher.matches(path.toAbsolutePath()))
             .forEach(path -> {
                 pathExists.set(true);
                 try (BufferedReader reader = new BufferedReader(new FileReader(path.toFile()))) {
@@ -73,7 +75,37 @@ public class LogFileProcessor {
         if (pathExists.get()) {
             return analyze;
         } else {
-            throw new IOException();
+            throw new IOException("Файл не был найден");
+        }
+    }
+
+    public static String getRootDirectory(String pathString) {
+        String path = pathString.replace('\\', '/');
+        int index = path.length() + 1;
+        String symbols = "*?[{";
+        for (char ch : symbols.toCharArray()) {
+            int symbolIndex = path.indexOf(ch);
+            if (symbolIndex != -1 && symbolIndex < index) {
+                index = symbolIndex;
+            }
+        }
+        if (index > path.length()) {
+            return path;
+        }
+        int lastSlash = path.lastIndexOf('/', index);
+        return (lastSlash == -1) ? "" : path.substring(0, lastSlash);
+    }
+
+    public static String getPattern(String pathString, String root) {
+        String path = pathString.replace('\\', '/');
+        if (root.equals(path)) {
+            return "**";
+        }
+        if (path.contains(":") || path.startsWith("/")) {
+            return path;
+        } else {
+            String absolutePath = Paths.get("").toAbsolutePath().toString().replace('\\', '/');
+            return absolutePath + "/" + path;
         }
     }
 }

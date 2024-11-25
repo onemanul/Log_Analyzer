@@ -3,6 +3,7 @@ package backendacademy.analyzer.fileParserClasses;
 import backendacademy.analyzer.LogAnalyze;
 import org.junit.jupiter.api.Test;
 import java.io.IOException;
+import java.nio.file.Paths;
 import static org.junit.jupiter.api.Assertions.*;
 
 /*
@@ -127,5 +128,82 @@ class LogFileProcessorTest {
     public void testGetLogRecords_InvalidPathLocalFile() throws Exception {
         String path = "InvalidPathAbsolytnoTochno";
         assertThrows(IOException.class, () -> LogFileProcessor.getLogRecords(path, null, null));
+    }
+    @Test
+    public void testGetRootDirectory_WithoutMask() {
+        String path = "C:\\Users\\Anyone\\Desktop\\file.txt";
+        String expected = "C:/Users/Anyone/Desktop/file.txt";
+        assertEquals(expected, LogFileProcessor.getRootDirectory(path));
+
+        path = "C:\\Users\\Anyone\\Desktop";
+        expected = "C:/Users/Anyone/Desktop";
+        assertEquals(expected, LogFileProcessor.getRootDirectory(path));
+
+        path = "Desktop/Something/Else";
+        assertEquals(path, LogFileProcessor.getRootDirectory(path));
+    }
+
+    @Test
+    public void testGetRootDirectory_WithMask() {
+        String path = "C:\\Users\\Anyone\\Desktop\\file*";
+        String expected = "C:/Users/Anyone/Desktop";
+        assertEquals(expected, LogFileProcessor.getRootDirectory(path));
+
+        path = "C:\\Users\\Anyone\\Desktop\\file.t?t";
+        assertEquals(expected, LogFileProcessor.getRootDirectory(path));
+
+        path = "C:\\Users\\Anyone\\Desktop\\f[ioe]le.txt";
+        assertEquals(expected, LogFileProcessor.getRootDirectory(path));
+
+        path = "C:\\Users\\Anyone\\D?sktop\\image.png";
+        expected = "C:/Users/Anyone";
+        assertEquals(expected, LogFileProcessor.getRootDirectory(path));
+
+        path = "C:\\Users\\Any[on]e\\De?ktop\\fi*.txt";
+        expected = "C:/Users";
+        assertEquals(expected, LogFileProcessor.getRootDirectory(path));
+    }
+
+    @Test
+    public void testGetRootDirectory_EmptyPath() {
+        String path = "";
+        assertEquals(path, LogFileProcessor.getRootDirectory(path));
+    }
+
+    @Test
+    public void testGetPattern_SameRoot() {
+        String path = "C:\\Users\\Anyone\\Desktop\\file.txt";
+        String root = "C:/Users/Anyone/Desktop/file.txt";
+        assertEquals("**", LogFileProcessor.getPattern(path, root));
+
+        path = "LOG/loges_3.txt";
+        root = "LOG/loges_3.txt";
+        assertEquals("**", LogFileProcessor.getPattern(path, root));
+    }
+
+    @Test
+    public void testGetPattern_AbsolutePath() {
+        String path = "C:\\Users\\Anyone\\Desktop\\file*";
+        String root = "C:/Users/Anyone/Desktop";
+        assertEquals("C:/Users/Anyone/Desktop/file*", LogFileProcessor.getPattern(path, root));
+
+        path = "/Users/Anyone/Desktop/file*";
+        assertEquals("/Users/Anyone/Desktop/file*", LogFileProcessor.getPattern(path, root));
+    }
+
+    @Test
+    public void testGetPattern_RelativePath() {
+        String path = "LOG/log*";
+        String root = "LOG";
+        String expected = Paths.get("").toAbsolutePath().toString().replace('\\', '/') + "/" + path;
+        assertEquals(expected, LogFileProcessor.getPattern(path, root));
+    }
+
+    @Test
+    public void testGetPattern_EmptyPath() {
+        String path = "";
+        String root = "root";
+        String expected = Paths.get("").toAbsolutePath().toString().replace('\\', '/') + "/";
+        assertEquals(expected, LogFileProcessor.getPattern(path, root));
     }
 }
